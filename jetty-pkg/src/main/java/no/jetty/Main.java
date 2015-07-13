@@ -6,6 +6,8 @@ import org.eclipse.jetty.webapp.WebAppClassLoader;
 import org.eclipse.jetty.webapp.WebAppContext;
 
 import java.io.FileInputStream;
+import java.net.URL;
+import java.net.URLClassLoader;
 
 public class Main {
 
@@ -37,7 +39,8 @@ public class Main {
                     "org.eclipse.jetty.server.webapp.ContainerIncludeJarPattern",
                     ".*/[^/]*servlet-api-[^/]*\\.jar$|.*/javax.servlet.jsp.jstl-.*\\.jar$|.*/[^/]*taglibs.*\\.jar$" );
             context.setInitParameter("org.eclipse.jetty.servlet.Default.dirAllowed", "false");
-            context.setClassLoader(new WebAppClassLoader(getClass().getClassLoader(), context));
+            ClassLoader jspClassLoader = new URLClassLoader(new URL[0], context.getClass().getClassLoader());
+            context.setClassLoader(jspClassLoader);
             context.setServer(srv);
 
             // Add the handlers
