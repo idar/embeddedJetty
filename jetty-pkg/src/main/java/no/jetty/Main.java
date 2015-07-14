@@ -2,6 +2,7 @@ package no.jetty;
 
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.HandlerList;
+import org.eclipse.jetty.webapp.Configuration;
 import org.eclipse.jetty.webapp.WebAppClassLoader;
 import org.eclipse.jetty.webapp.WebAppContext;
 
@@ -20,7 +21,7 @@ public class Main {
     }
 
     public Main() {
-        System.setProperty("org.apache.jasper.compiler.disablejsr199","true");
+        System.setProperty("org.apache.jasper.compiler.disablejsr199","false");
         port = Integer.parseInt(System.getProperty("jetty.port", "8080"));
         contextPath = System.getProperty("jetty.contextPath", "/");
     }
@@ -31,6 +32,9 @@ public class Main {
 
             Server srv = new Server(port);
             srv.setStopAtShutdown(true);
+
+            Configuration.ClassList classlist = Configuration.ClassList.setServerDefault(srv);
+            classlist.addBefore("org.eclipse.jetty.webapp.JettyWebXmlConfiguration", "org.eclipse.jetty.annotations.AnnotationConfiguration");
 
             // Add the warFile (this jar)
             WebAppContext context = new WebAppContext("jetty-pkg/target/lib/war-1.0.0-SNAPSHOT.war", contextPath);
