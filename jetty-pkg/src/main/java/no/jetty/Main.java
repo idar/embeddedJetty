@@ -43,8 +43,8 @@ public class Main {
                     "org.eclipse.jetty.server.webapp.ContainerIncludeJarPattern",
                     ".*/[^/]*servlet-api-[^/]*\\.jar$|.*/javax.servlet.jsp.jstl-.*\\.jar$|.*/[^/]*taglibs.*\\.jar$" );
             context.setInitParameter("org.eclipse.jetty.servlet.Default.dirAllowed", "false");
-            ClassLoader jspClassLoader = new URLClassLoader(new URL[0], context.getClass().getClassLoader());
-            context.setClassLoader(jspClassLoader);
+            //works with annotations and jsp
+            context.setClassLoader(new WebAppClassLoader(context));
             context.setServer(srv);
 
             // Add the handlers
