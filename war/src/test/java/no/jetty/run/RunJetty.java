@@ -1,50 +1,55 @@
-package no.jetty;
+package no.jetty.run;
 
+
+import org.eclipse.jetty.annotations.*;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.webapp.Configuration;
 import org.eclipse.jetty.webapp.WebAppClassLoader;
 import org.eclipse.jetty.webapp.WebAppContext;
 
-import java.io.FileInputStream;
-import java.net.URL;
-import java.net.URLClassLoader;
+import javax.servlet.ServletContainerInitializer;
+import java.io.File;
 
-public class Main {
+public class RunJetty {
 
-    private final int port;
-    private final String contextPath;
 
-    public static void main(String[] args) throws Exception {
-        Main sc = new Main();
-		sc.start();
+    public RunJetty() {
+        System.setProperty("org.apache.jasper.compiler.disablejsr199","false");
     }
 
-    public Main() {
-        System.setProperty("org.apache.jasper.compiler.disablejsr199","false");
-        port = Integer.parseInt(System.getProperty("jetty.port", "8080"));
-        contextPath = System.getProperty("jetty.contextPath", "/");
+
+    public static void main(String ...args){
+        new RunJetty().start();
     }
 
     private void start() {
         try {
             System.setProperty("org.eclipse.jetty.LEVEL", "INFO");
 
-            Server srv = new Server(port);
+            Server srv = new Server(8080);
             srv.setStopAtShutdown(true);
 
             Configuration.ClassList classlist = Configuration.ClassList.setServerDefault(srv);
             classlist.addBefore("org.eclipse.jetty.webapp.JettyWebXmlConfiguration", "org.eclipse.jetty.annotations.AnnotationConfiguration");
 
-            // Add the warFile (this jar)
-            WebAppContext context = new WebAppContext("jetty-pkg/target/lib/war-1.0.0-SNAPSHOT.war", contextPath);
+            WebAppContext context = new WebAppContext();
+            context.setContextPath("/");
+
+            String dir;
+            if (new File("src/main/webapp").exists()) dir = "src/main/webapp";
+            else dir = "war/src/main/webapp";
+
+            context.setResourceBase(dir);
+            context.setDescriptor(dir + "/WEB-INF/web.xml");
 
             context.setAttribute(
                     "org.eclipse.jetty.server.webapp.ContainerIncludeJarPattern",
-                    ".*/[^/]*servlet-api-[^/]*\\.jar$|.*/javax.servlet.jsp.jstl-.*\\.jar$|.*/[^/]*taglibs.*\\.jar$" );
+                    ".*/javax.servlet-[^/]*\\.jar$|.*/servlet-api-[^/]*\\.jar$|.*/classes/");
+
             context.setInitParameter("org.eclipse.jetty.servlet.Default.dirAllowed", "false");
-            //works with annotations and jsp
-            context.setClassLoader(new WebAppClassLoader(context));
+
+            context.setParentLoaderPriority(true);
             context.setServer(srv);
 
             // Add the handlers
@@ -57,5 +62,7 @@ public class Main {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+
     }
 }
