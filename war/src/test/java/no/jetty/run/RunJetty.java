@@ -45,8 +45,7 @@ public class RunJetty {
 
             context.setAttribute(
                     "org.eclipse.jetty.server.webapp.ContainerIncludeJarPattern",
-                    ".*/javax.servlet-[^/]*\\.jar$|.*/servlet-api-[^/]*\\.jar$|.*/classes/");
-
+                    ".*/[^/]*servlet-api-[^/]*\\.jar$|.*/javax.servlet.jsp.jstl-.*\\.jar$|.*/[^/]*taglibs.*\\.jar$|.*/classes/" );
             context.setInitParameter("org.eclipse.jetty.servlet.Default.dirAllowed", "false");
 
             context.setParentLoaderPriority(true);
